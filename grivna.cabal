@@ -1,8 +1,11 @@
+-- This file has been generated from package.yaml by hpack version 0.17.1.
+--
+-- see: https://github.com/sol/hpack
+
 name:                grivna
 version:             0.1.0.0
--- synopsis:
--- description:
 homepage:            https://github.com/erochest/grivna#readme
+bug-reports:         https://github.com/erochest/grivna/issues
 license:             BSD3
 license-file:        LICENSE
 author:              Eric Rochester
@@ -10,36 +13,47 @@ maintainer:          erochest@gmail.com
 copyright:           Copyright 2017 Eric Rochester
 category:            Web
 build-type:          Simple
-extra-source-files:  README.md
-cabal-version:       >=1.10
+cabal-version:       >= 1.10
 
-library
-  hs-source-dirs:      src
-  exposed-modules:     Lib
-  build-depends:       base >= 4.7 && < 5
-                     , aeson
-                     , servant-server
-                     , wai
-                     , warp
-  default-language:    Haskell2010
-
-executable grivna
-  hs-source-dirs:      app
-  main-is:             Main.hs
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  build-depends:       base
-                     , grivna
-  default-language:    Haskell2010
-
-test-suite grivna-test
-  type:                exitcode-stdio-1.0
-  hs-source-dirs:      test
-  main-is:             Spec.hs
-  build-depends:       base
-                     , grivna
-  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
-  default-language:    Haskell2010
+extra-source-files:
+    README.md
 
 source-repository head
-  type:     git
+  type: git
   location: https://github.com/erochest/grivna
+
+library
+  hs-source-dirs:
+      src
+  exposed-modules:
+      Lib
+  other-modules:
+      Paths_grivna
+  build-depends:
+      base >=4.7 && <5
+    , aeson
+    , servant-server
+    , wai
+    , warp
+  default-language: Haskell2010
+
+executable grivna
+  hs-source-dirs:
+      app
+  main-is: Main.hs
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  build-depends:
+      base
+    , grivna
+  default-language: Haskell2010
+
+test-suite grivna-test
+  type: exitcode-stdio-1.0
+  hs-source-dirs:
+      test
+  main-is: Spec.hs
+  build-depends:
+      base
+    , grivna
+  ghc-options: -threaded -rtsopts -with-rtsopts=-N
+  default-language: Haskell2010

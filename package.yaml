@@ -1,0 +1,42 @@
+name: grivna
+version: '0.1.0.0'
+category: Web
+author: Eric Rochester
+maintainer: erochest@gmail.com
+copyright: Copyright 2017 Eric Rochester
+license: BSD3
+github: erochest/grivna
+extra-source-files:
+- README.md
+library:
+  source-dirs: src
+  exposed-modules:
+  - Lib
+  dependencies:
+  - base >=4.7 && <5
+  - aeson
+  - servant-server
+  - wai
+  - warp
+executables:
+  grivna:
+    main: Main.hs
+    source-dirs: app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - grivna
+tests:
+  grivna-test:
+    main: Spec.hs
+    source-dirs: test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - grivna
