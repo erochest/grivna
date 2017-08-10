@@ -1,6 +1,7 @@
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE DataKinds          #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveGeneric      #-}
+{-# LANGUAGE TypeOperators      #-}
 
 
 module Lib
@@ -8,22 +9,25 @@ module Lib
     ) where
 
 
+import           Control.Monad.IO.Class
 import           Data.Aeson
-import           Data.Aeson.TH
+import           Data.Data
+import qualified Data.HashMap.Strict      as M
+import           GHC.Generics
 import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
+import           System.Environment
 
 
-data User = User
-  { userId        :: Int
-  , userFirstName :: String
-  , userLastName  :: String
-  } deriving (Eq, Show)
+newtype Info
+  = Info
+    { environment :: M.HashMap String String
+    } deriving (Eq, Show, Data, Typeable, Generic)
 
-$(deriveJSON defaultOptions ''User)
+instance ToJSON Info
 
-type API = "users" :> Get '[JSON] [User]
+type API = "info" :> Get '[JSON] Info
 
 
 startApp :: IO ()
@@ -36,10 +40,8 @@ api :: Proxy API
 api = Proxy
 
 server :: Server API
-server = return users
+server = liftIO getInfo
 
-users :: [User]
-users = [ User 1 "Isaac" "Newton"
-        , User 2 "Albert" "Einstein"
-        , User 3 "Stephen" "Hawking"
-        ]
+getInfo :: IO Info
+getInfo =   Info
+        <$> fmap M.fromList getEnvironment
