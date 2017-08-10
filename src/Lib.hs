@@ -13,6 +13,7 @@ import           Control.Monad.IO.Class
 import           Data.Aeson
 import           Data.Data
 import qualified Data.HashMap.Strict      as M
+import           Data.Maybe
 import           GHC.Generics
 import           Network.Wai
 import           Network.Wai.Handler.Warp
@@ -31,7 +32,9 @@ type API = "info" :> Get '[JSON] Info
 
 
 startApp :: IO ()
-startApp = run 8080 app
+startApp = do
+  port <- maybe 8080 read <$> lookupEnv "PORT"
+  run port app
 
 app :: Application
 app = serve api server
