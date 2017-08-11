@@ -6,7 +6,7 @@ run:
 	stack build --pedantic --exec 'stack exec -- grivna'
 
 build:
-	stack build --pedantic
+	stack build
 
 watch:
 	stack build --file-watch
@@ -19,7 +19,7 @@ clean:
 
 deploy: test
 	stack --docker clean
-	stack --docker build --test
+	stack --docker build --test --pedantic
 	stack --docker --docker-run-args='--net=bridge --publish=8080:8080' \
 		image container
 	docker push $(REPO)
