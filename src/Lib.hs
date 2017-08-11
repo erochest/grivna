@@ -46,7 +46,10 @@ instance ToJSON Info where
   toEncoding =
     genericToEncoding $ defaultOptions { fieldLabelModifier = L.drop 1 }
 
-type API = "v1" :> "info" :> Get '[JSON] Info
+type API = "v1" :>
+  (    "info"    :> Get '[JSON] Info
+  :<|> "version" :> Get '[JSON] T.Text
+  )
 
 newtype Action a = Action { runAction :: LoggingT Handler a }
   deriving (Functor, Applicative, Monad, MonadLogger, MonadIO)
@@ -88,12 +91,15 @@ actionServer :: LogLevel -> Server API
 actionServer level = enter (actionToHandler level) actionServerT
 
 actionServerT :: ServerT API Action
-actionServerT = info
+actionServerT = info :<|> version
   where
     info :: Action Info
     info = do
       logInfoN "Reading environment."
       liftIO getInfo
+
+    version :: Action T.Text
+    version = return "logging"
 
 getInfo :: IO Info
 getInfo =   Info
