@@ -8,6 +8,10 @@ module Lib
     ( startApp
     ) where
 
+-- TODO: logging
+-- TODO: publish swagger docs
+-- TODO: versioning
+
 
 import           Control.Monad.IO.Class
 import           Data.Aeson
@@ -20,7 +24,7 @@ import           Network.Wai
 import           Network.Wai.Handler.Warp
 import           Servant
 import           System.Environment
-import System.IO
+import           System.IO
 
 
 newtype Info
