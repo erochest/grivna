@@ -2,14 +2,26 @@
 APP=grivna
 REPO=erochest/grivna-grivna
 
+run:
+	stack build --pedantic --exec 'stack exec -- grivna'
+
 build:
 	stack build --pedantic
 
-test: build
-	stack test
+watch:
+	stack build --file-watch
 
-deploy: build test
-	stack --docker-run-args='--net=bridge --publish=3000:3000' image container
+test:
+	stack build --test
+
+clean:
+	stack clean
+
+deploy: test
+	stack --docker clean
+	stack --docker build --test
+	stack --docker --docker-run-args='--net=bridge --publish=8080:8080' \
+		image container
 	docker push $(REPO)
 	cf push $(APP) --docker-image $(REPO)
 
