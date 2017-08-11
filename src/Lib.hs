@@ -10,7 +10,10 @@ module Lib
 
 -- TODO: logging
 -- TODO: publish swagger docs
--- TODO: versioning
+-- TODO: ekg
+-- TODO: db
+-- TODO: tests
+-- TODO: image version tags
 
 
 import           Control.Monad.IO.Class
@@ -36,7 +39,7 @@ instance ToJSON Info where
   toEncoding =
     genericToEncoding $ defaultOptions { fieldLabelModifier = L.drop 1 }
 
-type API = "info" :> Get '[JSON] Info
+type API = "v1" :> "info" :> Get '[JSON] Info
 
 
 startApp :: IO ()
