@@ -64,6 +64,8 @@ extra-package-dbs: []
 #
 # Allow a newer minor version of GHC than the snapshot specifies
 # compiler-check: newer-minor
+docker:
+  enable: true
 
 image:
   container:
@@ -73,8 +75,5 @@ image:
     # DESTINATIONS INSIDE THE DOCKER IMAGE.
     #add:
     #  man/: /usr/local/share/man/
-    # OPTIONALLY SPECIFY A LIST OF EXECUTABLES. STACK WILL CREATE
-    # A TAGGED IMAGE FOR EACH IN THE LIST. THESE IMAGES WILL HAVE
-    # THEIR RESPECTIVE "ENTRYPOINT" SET.
     entrypoints:
-      - grivna-exe
+      - grivna
