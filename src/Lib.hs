@@ -11,13 +11,13 @@ module Lib
     ( startApp
     ) where
 
--- TODO: publish swagger docs
 -- TODO: ekg
 -- TODO: db
 -- TODO: tests
 -- TODO: image version tags
 -- TODO: events
 -- TODO: deploy with branches and merging
+-- TODO: refactor
 
 
 import           Control.Monad.IO.Class
@@ -35,6 +35,8 @@ import           Network.Wai.Logger       (withStdoutLogger)
 import           Servant
 import           System.Environment
 import           System.IO
+import Servant.Swagger
+import Data.Swagger hiding (Info, fieldLabelModifier)
 
 
 newtype Info
@@ -46,9 +48,14 @@ instance ToJSON Info where
   toEncoding =
     genericToEncoding $ defaultOptions { fieldLabelModifier = L.drop 1 }
 
+instance ToSchema Info
+
+type API1 =    "info"    :> Get '[JSON] Info
+          :<|> "version" :> Get '[JSON] T.Text
+
 type API = "v1" :>
-  (    "info"    :> Get '[JSON] Info
-  :<|> "version" :> Get '[JSON] T.Text
+  (    "api"     :> API1
+  :<|> "swagger" :> Get '[JSON] Swagger
   )
 
 newtype Action a = Action { runAction :: LoggingT Handler a }
@@ -84,6 +91,9 @@ actionToHandler level = NT (actionToHandler' level)
 app :: LogLevel -> Application
 app logLevel = serve api (actionServer logLevel)
 
+api1 :: Proxy API1
+api1 = Proxy
+
 api :: Proxy API
 api = Proxy
 
@@ -91,7 +101,7 @@ actionServer :: LogLevel -> Server API
 actionServer level = enter (actionToHandler level) actionServerT
 
 actionServerT :: ServerT API Action
-actionServerT = info :<|> version
+actionServerT = (info :<|> version) :<|> swagger
   where
     info :: Action Info
     info = do
@@ -99,7 +109,10 @@ actionServerT = info :<|> version
       liftIO getInfo
 
     version :: Action T.Text
-    version = return "logging"
+    version = return "swagger"
+
+    swagger :: Action Swagger
+    swagger = return $ toSwagger api1
 
 getInfo :: IO Info
 getInfo =   Info

@@ -34,6 +34,8 @@ library
     , aeson
     , monad-logger
     , servant-server
+    , servant-swagger
+    , swagger2
     , text
     , unordered-containers
     , wai
