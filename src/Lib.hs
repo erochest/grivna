@@ -17,8 +17,8 @@ module Lib
     ( startApp
     ) where
 
--- TODO: ekg
 -- TODO: db
+-- TODO: fix swagger
 -- TODO: tests
 -- TODO: image version tags
 -- TODO: events
@@ -28,15 +28,16 @@ module Lib
 
 import           Data.Aeson.Types
 import           Data.Data
-import qualified Data.HashMap.Strict      as M
-import qualified Data.List                as L
-import           Data.Swagger             hiding (Info, fieldLabelModifier,
-                                           info, version)
-import qualified Data.Text                as T
+import qualified Data.HashMap.Strict          as M
+import qualified Data.List                    as L
+import           Data.Swagger                 hiding (Info, fieldLabelModifier,
+                                               info, version)
+import qualified Data.Text                    as T
 import           Magicbane
 import           Network.Wai.Handler.Warp
 import           Servant.Swagger
 import           System.Environment
+import           System.Remote.Monitoring.Wai (serverMetricStore)
 
 
 newtype Info
@@ -87,15 +88,17 @@ instance Var LogLevel where
   fromVar "ERROR" = Just LevelDebug
   fromVar other   = Just $ LevelOther $ T.pack other
 
-type GrivnaContext = (ModLogger, GrivnaConf)
+type GrivnaContext = (ModLogger, ModMetrics, GrivnaConf)
 type GrivnaApp     = MagicbaneApp GrivnaContext
 
 startApp :: IO ()
 startApp = withEnvConfig $ \(config :: GrivnaConf) -> do
   (_, logger) <-  second (ModLogger . filterLogging (logLevel config))
               <$> newLogger (LogStderr defaultBufSize)
-  let context = (logger, config)
-  run (Lib.port config) $ magicbaneApp api EmptyContext context actions
+  let mainPort    = Lib.port config
+  metrics <- startMetrics $ mainPort + 1
+  let context     = (logger, metrics, config)
+  run mainPort $ magicbaneApp api EmptyContext context actions
 
 filterLogging :: LogLevel -> ModLogger
               -> Loc -> LogSource -> LogLevel -> LogStr -> IO ()
@@ -103,16 +106,20 @@ filterLogging target (ModLogger f) loc src level str
   | target <= level = f loc src level str
   | otherwise       = return ()
 
+startMetrics :: Int -> IO ModMetrics
+startMetrics port =
+  newMetricsWith =<< serverMetricStore <$> forkMetricsServer "0.0.0.0" port
+
 actions :: (GrivnaApp Info :<|> GrivnaApp T.Text) :<|> GrivnaApp Swagger
 actions = (info :<|> version) :<|> swagger
 
 info :: GrivnaApp Info
-info = do
+info = timed "GET info" $ do
   $logInfo$ "Reading environment."
   liftIO getInfo
 
 version :: GrivnaApp T.Text
-version = return "magicbane"
+version = return "ekg"
 
 swagger :: GrivnaApp Swagger
 swagger = return $ toSwagger (Proxy :: Proxy API1')

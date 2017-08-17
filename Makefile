@@ -3,7 +3,7 @@ APP=grivna
 REPO=erochest/grivna-grivna
 
 run:
-	stack build --pedantic --exec 'stack exec -- grivna'
+	LOG_LEVEL=DEBUG stack build --pedantic --exec 'stack exec -- grivna'
 
 build:
 	stack build
