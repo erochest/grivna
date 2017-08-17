@@ -22,6 +22,7 @@ module Lib
 -- TODO: tests
 -- TODO: image version tags
 -- TODO: events
+-- TODO: ekg to cf metrics
 -- TODO: deploy with branches and merging
 -- TODO: refactor
 
@@ -96,8 +97,8 @@ startApp = withEnvConfig $ \(config :: GrivnaConf) -> do
   (_, logger) <-  second (ModLogger . filterLogging (logLevel config))
               <$> newLogger (LogStderr defaultBufSize)
   let mainPort    = Lib.port config
-  metrics <- startMetrics $ mainPort + 1
-  let context     = (logger, metrics, config)
+  metr <- startMetrics $ mainPort + 1
+  let context     = (logger, metr, config)
   run mainPort $ magicbaneApp api EmptyContext context actions
 
 filterLogging :: LogLevel -> ModLogger
@@ -107,8 +108,8 @@ filterLogging target (ModLogger f) loc src level str
   | otherwise       = return ()
 
 startMetrics :: Int -> IO ModMetrics
-startMetrics port =
-  newMetricsWith =<< serverMetricStore <$> forkMetricsServer "0.0.0.0" port
+startMetrics portno =
+  newMetricsWith =<< serverMetricStore <$> forkMetricsServer "0.0.0.0" portno
 
 actions :: (GrivnaApp Info :<|> GrivnaApp T.Text) :<|> GrivnaApp Swagger
 actions = (info :<|> version) :<|> swagger

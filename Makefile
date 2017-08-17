@@ -6,13 +6,13 @@ run:
 	LOG_LEVEL=DEBUG stack build --pedantic --exec 'stack exec -- grivna'
 
 build:
-	stack build
+	stack build $(BUILD_OPTS)
 
 watch:
-	stack build --file-watch
+	stack build --file-watch $(BUILD_OPTS)
 
 test:
-	stack build --test
+	stack build --test $(BUILD_OPTS)
 
 clean:
 	stack clean
