@@ -32,6 +32,8 @@ library
   build-depends:
       base >=4.7 && <5
     , aeson
+    , fast-logger
+    , magicbane
     , monad-logger
     , servant-server
     , servant-swagger
