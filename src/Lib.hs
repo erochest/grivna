@@ -17,8 +17,8 @@ module Lib
     ( startApp
     ) where
 
+-- TODO: refactor API (remove api)
 -- TODO: db
--- TODO: fix swagger
 -- TODO: tests
 -- TODO: image version tags
 -- TODO: events
@@ -33,6 +33,7 @@ import qualified Data.HashMap.Strict          as M
 import qualified Data.List                    as L
 import           Data.Swagger                 hiding (Info, fieldLabelModifier,
                                                info, version)
+import qualified Data.Swagger.Schema          as S
 import qualified Data.Text                    as T
 import           Magicbane
 import           Network.Wai.Handler.Warp
@@ -50,7 +51,10 @@ instance ToJSON Info where
   toEncoding =
     genericToEncoding $ defaultOptions { fieldLabelModifier = L.drop 1 }
 
-instance ToSchema Info
+instance ToSchema Info where
+  declareNamedSchema =
+    genericDeclareNamedSchema (S.defaultSchemaOptions
+                                { S.fieldLabelModifier = L.drop 1})
 
 type InfoRoute    = "info"    :> Get '[JSON] Info
 type VersionRoute = "version" :> Get '[JSON] T.Text
